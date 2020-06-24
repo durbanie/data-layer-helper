@@ -11,5 +11,9 @@
     "grunt-contrib-concat": "~0.3.0",
     "grunt-closure-tools": "~0.8.3",
     "grunt-closure-linter": "~0.1.0"
+  },
+  "dependencies": {
+    "google-closure-compiler": "^20200614.0.0",
+    "google-closure-library": "^20200614.0.0"
   }
 }

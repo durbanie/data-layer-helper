@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
+const compilerPackage = require('google-closure-compiler');
+
 module.exports = function(grunt) {
+  //const closurePackage = require('google-closure-compiler');
+    compilerPackage.grunt(grunt, { platform: ['java'] });
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-
-    closureLint: {
-      app:{
-        closureLinterPath : 'third_party/closure-linter/closure_linter',
-        src: ['src/**/*.js'],
-        options: {
-          stdout: true,
-          strict: true
-        }
-      }
-    },
 
     closureDepsWriter: {
       options: {
@@ -39,38 +32,64 @@ module.exports = function(grunt) {
         dest: 'src/deps.js'
       }
     },
+    // Using https://www.npmjs.com/package/google-closure-compiler
+    'closure-compiler': {
+      my_target: {
+        files: {
+            'dist/data-layer-helper-2.js': [
+		'src/**.js',
+	    ]
+        },
+        options: {
+          js: 'node_modules/google-closure-library/**.js',
+          //js: 'third_party/closure-library/**.js',
+          // externs: closurePackage.compiler.CONTRIB_PATH + '/externs/jquery-1.9.js',
+          compilation_level: 'SIMPLE',
+          //manage_closure_dependencies: true,
+          language_in: 'ECMASCRIPT6',
+          create_source_map: 'dist/data-layer-helper-2.js.map',
+          output_wrapper: '(function(){%output%})();',
+          //jscomp_warning: 'lintChecks',
+        }
+      }
+    },
 
-    closureBuilder:  {
+      /*
+    // Using https://www.npmjs.com/package/grunt-closure-tools
+    closureCompiler: {
       options: {
         closureLibraryPath: 'third_party/closure-library',
         compilerFile: 'third_party/closure-compiler/compiler.jar',
-        namespaces: 'helper',
-        compile: true,
         compilerOpts: {
           compilation_level: 'ADVANCED_OPTIMIZATIONS',
-          output_wrapper: '(function(){%output%})();',
+          output_wrapper: `'(function(){%output%})();'`,
+//          jscomp_warning: 'lintChecks',
         },
+        execOpts: {
+          // fix Error: maxBuffer exceeded
+          maxBuffer: 10000 * 1024,
+        },
+        TieredCompilation: true
       },
       helper: {
-        src: ['third_party/closure-library', 'src'],
-        dest: 'dist/data-layer-helper.js'
-      },
-    },
+        src: ['src', 'third_party/closure-library/closure/goog/base.js'],
+        dest: 'dist/data-layer-helper-3.js',
+      }
+    },*/
 
     qunit: {
       files: ['test/unit.html', 'test/integration.html']
     },
-
   });
 
   grunt.loadNpmTasks('grunt-closure-tools');
-  grunt.loadNpmTasks('grunt-closure-linter');
+  //grunt.loadNpmTasks('google-closure-compiler');
   grunt.loadNpmTasks('grunt-contrib-qunit');
 
   grunt.registerTask('default', [
-    'closureLint',
-    'closureDepsWriter',
-    'closureBuilder',
-    'qunit'
+    //'closureDepsWriter',
+    'closure-compiler',
+    //'closureCompiler',
+    //'qunit'
   ]);
 };
